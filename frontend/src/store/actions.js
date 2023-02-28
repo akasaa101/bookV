@@ -28,6 +28,13 @@ export const selectAuthor = (author) => ({
   payload: author
 });
 
+export const selectLastAuthor = () => ({
+  type: 'SELECT_LAST_AUTHOR',
+});
+export const selectLastBook = () => ({
+  type: 'SELECT_LAST_BOOK',
+});
+
 export const loginUser = (username, password) => {
   return async (dispatch) => {
     dispatch(loginRequest());
@@ -55,7 +62,18 @@ export const registerUser = (username, displayName, password) => {
       });
   };
 };
-
+export const openCreateAuthorTab = () => ({
+  type: 'SELECT_CREATE_AUTHOR_TAB'
+});
+export const openEditAuthorTab = () => ({
+  type: 'SELECT_EDIT_AUTHOR_TAB'
+});
+export const openCreateBookTab = () => ({
+  type: 'SELECT_CREATE_BOOK_TAB'
+});
+export const openEditBookTab = () => ({
+  type: 'SELECT_EDIT_BOOK_TAB'
+});
 
 export const getBooks = () => {
   return async (dispatch) => {
@@ -80,6 +98,53 @@ export const getAuthors = () => {
           type: 'GET_AUTHORS',
           payload: response.data.authors
         });
+      })
+      .catch(error => {
+        throw(error);
+      });
+  };
+};
+
+export const postAuthor = (name) => {
+  return async (dispatch) => {
+    return axios.post('http://127.0.0.1:4000/authors', { name } )
+      .then(response => {
+        if(response.status===201){
+          dispatch(getAuthors());
+          dispatch(selectAuthor(response.data.author))
+          }
+      })
+      .catch(error => {
+        throw(error);
+      });
+  };
+};
+
+export const putAuthor = (id, name) => {
+  return async (dispatch) => {
+    return axios.put('http://127.0.0.1:4000/authors/'+id , { name } )
+      .then(response => {
+        if(response.status===200)
+          dispatch(getAuthors());
+      })
+      .catch(error => {
+        throw(error);
+      });
+  };
+};
+
+export const postBook = (token, authorId, title, description, isbn) => {
+  return async (dispatch) => {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
+    const data = { authorId, title, description, isbn };
+    return axios.post('http://127.0.0.1:4000/books', data, config )
+      .then(response => {
+        if(response.status===201){
+          dispatch(getBooks());
+          dispatch(selectBook(response.data.book))
+          }
       })
       .catch(error => {
         throw(error);

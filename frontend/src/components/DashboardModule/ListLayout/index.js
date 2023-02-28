@@ -1,14 +1,19 @@
 import { Box, Typography } from "@mui/material"
 import { useDispatch } from "react-redux"
-import { selectAuthor, selectBook } from "../../../store/actions"
+import { openEditBookTab, openEditAuthorTab, selectAuthor, selectBook } from "../../../store/actions"
 import theme from '../../../theme'
 const ListLayout = ({data, title}) => {
     const ListItem = ({item, key}) => {
         const dispatch = useDispatch();
         const handleOnClick = () => {
-            if(item.description)
-                return dispatch(selectBook(item))
-            dispatch(selectAuthor(item))
+            if(item.description){
+                dispatch(selectBook(item))
+                dispatch(openEditBookTab())
+            }
+            else{
+                dispatch(selectAuthor(item))
+                dispatch(openEditAuthorTab())
+            }
         }
         return (
             <Box sx={{display: 'flex', justifyContent: 'space-around',m:1,p:1, borderRadius: 4, width: '90%', backgroundColor: theme.palette.background.paper, cursor: 'pointer'}} key={key} onClick={handleOnClick}>
@@ -36,7 +41,7 @@ const ListLayout = ({data, title}) => {
                     {title!=="Last Authors" ? <Typography color="secondary">Description</Typography> : <></>}
                 </Box>
                 <Box sx={{display: 'flex', flexDirection:'column',alignItems:'center', maxHeight: 220,overflow:'auto', width: '100%'}}>
-                {data.map((item, index)=><ListItem item={item} key={index}/>)}
+                    {data.slice(0).reverse().map((item, index)=><ListItem item={item} key={index}/>)}
                 </Box>
             </Box>
         </Box>

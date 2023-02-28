@@ -32,8 +32,15 @@ export class BooksService {
     if (!user) {
       throw new Error(`User ${username} not found`);
     }
+    const author = await this.prisma.author.findUnique({
+      where: { id: dto.authorId },
+    });
+    if (!author) {
+      throw new Error(`Author ${dto.authorId} not found`);
+    }
     const book = await this.prisma.book.create({
       data: {
+        author: { connect: { id: author.id } },
         title: dto.title,
         description: dto.description,
         isbn: dto.isbn,

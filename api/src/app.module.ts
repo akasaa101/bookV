@@ -19,7 +19,7 @@ import { TranscodeConsumer } from './transcode.consumer';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     BullModule.forRoot({
       redis: {
-        host: 'redis',
+        host: 'localhost',
         port: 6379,
       },
     }),

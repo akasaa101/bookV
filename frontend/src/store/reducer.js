@@ -5,7 +5,9 @@ const initialState = {
   books: [],
   authors: [],
   selectedBook : {},
-  selectedAuthor: {}
+  selectedAuthor: {},
+  authorsModuleTab: 'create',
+  booksModuleTab: 'create'
 };
 
 function userReducer(state = initialState, action) {
@@ -26,6 +28,18 @@ function userReducer(state = initialState, action) {
       return { ...state, selectedBook: action.payload };
     case 'SELECT_AUTHOR':
       return { ...state, selectedAuthor: action.payload };
+    case 'SELECT_CREATE_AUTHOR_TAB':
+      return { ...state, authorsModuleTab: "create" };
+    case 'SELECT_EDIT_AUTHOR_TAB':
+      return { ...state, authorsModuleTab: "edit" };
+    case 'SELECT_CREATE_BOOK_TAB':
+      return { ...state, booksModuleTab: "create" };
+    case 'SELECT_EDIT_BOOK_TAB':
+      return { ...state, booksModuleTab: "edit" };
+    case 'SELECT_LAST_AUTHOR':
+      return { ...state, selectedAuthor: state.authors[state.authors.length]}
+    case 'SELECT_LAST_BOOK':
+      return { ...state, selectedBook: state.authors[state.books.length]}
     default:
       return state;
   }
