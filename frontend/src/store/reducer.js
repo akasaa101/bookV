@@ -1,5 +1,7 @@
 const initialState = {
   token: "",
+  username: "",
+  displayName: "",
   loginState: 'ready',
   snackbarMessage: '',
   books: [],
@@ -7,7 +9,7 @@ const initialState = {
   selectedBook : {},
   selectedAuthor: {},
   authorsModuleTab: 'create',
-  booksModuleTab: 'create'
+  booksModuleTab: 'create',
 };
 
 function userReducer(state = initialState, action) {
@@ -15,11 +17,11 @@ function userReducer(state = initialState, action) {
     case 'LOGIN_REQUEST':
       return { ...state, loginState: 'loading', token: "" };
     case 'LOGIN_SUCCESS':
-      return { ...state, loginState: 'success', token: action.payload };
+      return { ...state, loginState: 'success', token: action.payload.token, username: action.payload.username, displayName: action.payload.displayName };
     case 'LOGIN_FAILURE':
       return { ...state, loginState: 'failed', token: "", snackbarMessage: action.payload };
     case 'LOGOUT':
-      return { ...state, loginState: 'ready', token: "" };
+      return { ...state, loginState: 'ready', token: "", username: "", displayName: "" };
     case 'GET_BOOKS':
       return { ...state, books: action.payload };
     case 'GET_AUTHORS':
@@ -39,7 +41,7 @@ function userReducer(state = initialState, action) {
     case 'SELECT_LAST_AUTHOR':
       return { ...state, selectedAuthor: state.authors[state.authors.length]}
     case 'SELECT_LAST_BOOK':
-      return { ...state, selectedBook: state.authors[state.books.length]}
+      return { ...state, selectedBook: state.book[state.books.length]}
     default:
       return state;
   }

@@ -16,8 +16,8 @@ const BooksModule = () => {
             <Box sx={{m:1,display:'flex', flexDirection:'column', alignItems:'center', backgroundColor: theme.palette.background.default, width: '90%', height:'100%', borderRadius: 4 }}>
                  <Box sx={{display: 'flex',width:'50%', m:2}}>
                     <ButtonGroup fullWidth variant="outlined" aria-label="outlined primary button group">
-                        <Button onClick={()=>dispatch(openCreateBookTab())}>New</Button>
-                        <Button onClick={()=>dispatch(openEditBookTab())}>Edit</Button>
+                        <Button variant={selectedTab === "create" ? "contained" : "outlined"} sx={{color: selectedTab === "create" ? 'white' : theme.palette.primary.main}} onClick={()=>dispatch(openCreateBookTab())}>New</Button>
+                        <Button variant={selectedTab === "edit" ? "contained" : "outlined"} sx={{color: selectedTab === "edit" ? 'white' : theme.palette.primary.main}} onClick={()=>dispatch(openEditBookTab())}>Edit</Button>
                     </ButtonGroup>
                 </Box>
                 <Box sx={{height: '85%', width: '90%', backgroundColor: theme.palette.background.paper, borderRadius: 4}}>

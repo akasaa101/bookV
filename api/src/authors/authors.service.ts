@@ -1,33 +1,72 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { AuthorsDTO, UpdateAuthorDTO } from './dto/authors.dto';
-
+import { DatabaseLogger } from 'src/database.logger';
 @Injectable()
 export class AuthorsService {
-  constructor(private prisma: PrismaService) {}
-  private readonly logger = new Logger(AuthorsService.name);
+  constructor(
+    private prisma: PrismaService,
+    private readonly logger: DatabaseLogger,
+  ) {}
 
   async getAuthors() {
-    this.logger.log('getAuthors service triggered');
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.getAuthors triggered',
+      }),
+      action: 'SELECT',
+    });
     const authors = await this.prisma.author.findMany();
-    this.logger.log('get authors successfully');
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.getAuthors successfully',
+      }),
+      action: 'SELECT',
+    });
     return { message: true, authors };
   }
   async createAuthor(dto: AuthorsDTO) {
-    this.logger.log(
-      'createAuthor service triggered. author: ' + JSON.stringify(dto),
-    );
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.createAuthor triggered',
+        dto,
+      }),
+      action: 'INSERT',
+    });
     const { name } = dto;
     const author = await this.prisma.author.create({
       data: {
         name,
       },
     });
-    this.logger.log('create author successfully. ' + author);
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.createAuthor successfully',
+        author,
+      }),
+      action: 'INSERT',
+    });
     return { message: true, author };
   }
   async updateAuthor(id: string, dto: UpdateAuthorDTO) {
-    this.logger.log('updateAuthor service triggered. id: ' + id);
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.updateAuthor triggered',
+        id,
+        dto,
+      }),
+      action: 'UPDATE',
+    });
     const existingAuthor = await this.prisma.author.findUnique({
       where: { id: Number(id) },
     });
@@ -38,9 +77,15 @@ export class AuthorsService {
       where: { id: Number(id) },
       data: dto,
     });
-    this.logger.log(
-      'create author successfully. ' + JSON.stringify(updatedAuthor),
-    );
+    this.logger.log({
+      userId: null,
+      tableName: 'author',
+      data: JSON.stringify({
+        message: 'AuthorsService.updateAuthor successfully',
+        updatedAuthor,
+      }),
+      action: 'UPDATE',
+    });
     return { message: true, author: updatedAuthor };
   }
 }

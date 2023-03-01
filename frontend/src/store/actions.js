@@ -4,9 +4,9 @@ export const loginRequest = () => ({
   type: 'LOGIN_REQUEST'
 });
 
-export const loginSuccess = (token) => ({
+export const loginSuccess = (token, username, displayName) => ({
   type: 'LOGIN_SUCCESS',
-  payload: token
+  payload: { token, username, displayName }
 });
 
 export const loginFailure = (message) => ({
@@ -40,7 +40,8 @@ export const loginUser = (username, password) => {
     dispatch(loginRequest());
     return axios.post('http://127.0.0.1:4000/login', { username, password })
       .then(response => {
-        dispatch(loginSuccess(response.data.token));
+        const { token, username, displayName } = response.data
+        dispatch(loginSuccess(token, username, displayName));
       })
       .catch(error => {
         dispatch(loginFailure(error.message));
@@ -145,6 +146,42 @@ export const postBook = (token, authorId, title, description, isbn) => {
           dispatch(getBooks());
           dispatch(selectBook(response.data.book))
           }
+      })
+      .catch(error => {
+        throw(error);
+      });
+  };
+};
+
+export const putBook = (token, id, {title, description, authorId, isbn, price}) => {
+  return async (dispatch) => {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
+    const data = { authorId, title, description, isbn , price: Number(price)};
+    return axios.put('http://127.0.0.1:4000/books/'+id , data, config  )
+      .then(response => {
+        if(response.status===200)
+          dispatch(getBooks());
+          dispatch(selectBook(response.data.book))
+      })
+      .catch(error => {
+        throw(error);
+      });
+  };
+};
+
+export const updatePrices = (token) => {
+  return async (dispatch) => {
+    const config = {
+      headers: { Authorization: `Bearer ${token}` }
+    };
+    return axios.get('http://127.0.0.1:4000/books/update-prices', config)
+      .then(response => {
+        console.log("=====")
+        console.log(response.data)
+        console.log("=====")
+        dispatch(getBooks());
       })
       .catch(error => {
         throw(error);

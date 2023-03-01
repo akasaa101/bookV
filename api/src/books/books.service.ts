@@ -1,37 +1,46 @@
-import { Injectable, NotFoundException, Logger } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { BooksDTO, UpdateBookDTO, UpdateBookPrices } from './dto/books.tdo';
 import { Queue } from 'bull';
 import { InjectQueue } from '@nestjs/bull';
 import { TRANSCODE_QUEUE } from 'src/constants';
-
+import { DatabaseLogger } from 'src/database.logger';
 @Injectable()
 export class BooksService {
   constructor(
     @InjectQueue(TRANSCODE_QUEUE) private readonly transcodeQueue: Queue,
     private prisma: PrismaService,
+    private readonly logger: DatabaseLogger,
   ) {}
-  private readonly logger = new Logger(BooksService.name);
 
   async getBooks() {
-    this.logger.log('getBooks service triggered');
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.getBooks triggered',
+      }),
+      action: 'SELECT',
+    });
     const books = await this.prisma.book.findMany();
     return { message: true, books };
   }
 
   async createBook(dto: BooksDTO, username: string) {
-    this.logger.log(
-      'createBook service triggered. username: ' +
-        username +
-        '. book: ' +
-        JSON.stringify(dto),
-    );
     const user = await this.prisma.user.findUnique({
       where: { username },
     });
     if (!user) {
       throw new Error(`User ${username} not found`);
     }
+    this.logger.log({
+      userId: user.id,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.createBook triggered',
+      }),
+      action: 'INSERT',
+    });
     const author = await this.prisma.author.findUnique({
       where: { id: dto.authorId },
     });
@@ -47,24 +56,56 @@ export class BooksService {
         user: { connect: { id: user.id } },
       },
     });
-    this.logger.log('create book successfully. book: ' + JSON.stringify(book));
+    this.logger.log({
+      userId: user.id,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.createBook, successfully created book',
+        book,
+      }),
+      action: 'INSERT',
+    });
     return { message: true, book };
   }
 
   async updateBook(bookId: string, dto: UpdateBookDTO) {
-    this.logger.log('updateBook service triggered. bookId: ' + bookId);
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.updateBook triggered',
+        bookId,
+        dto,
+      }),
+      action: 'INSERT',
+    });
     const updatedBook = await this.prisma.book.update({
       where: { id: Number(bookId) },
       data: dto,
     });
-    this.logger.log(
-      'update book successfully. book: ' + JSON.stringify(updatedBook),
-    );
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.updateBook successffully',
+        bookId,
+        dto,
+      }),
+      action: 'INSERT',
+    });
     return { message: true, book: updatedBook };
   }
 
   async deleteBook(id: number) {
-    this.logger.log('deleteBook service triggered. id: ' + id);
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.deleteBook triggered',
+        id,
+      }),
+      action: 'DELETE',
+    });
     const existingBook = await this.prisma.book.findUnique({
       where: { id: Number(id) },
     });
@@ -72,19 +113,42 @@ export class BooksService {
     await this.prisma.book.delete({
       where: { id: Number(id) },
     });
-    this.logger.log('delete book successfully. id: ' + id);
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.deleteBook successfully',
+        id,
+      }),
+      action: 'DELETE',
+    });
     return { message: true };
   }
 
   async updatePrices() {
-    this.logger.log('updatePrices service triggered. books adding to queue.');
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message: 'BookService.updatePrices triggered',
+      }),
+      action: 'INSERT',
+    });
     const books = await this.prisma.book.findMany();
     for (const book of books) {
       const bookDto = new UpdateBookPrices();
       bookDto.id = book.id;
       await this.transcodeQueue.add(bookDto);
     }
-    this.logger.log('adding queue all books successfully');
+    this.logger.log({
+      userId: null,
+      tableName: 'book',
+      data: JSON.stringify({
+        message:
+          'BookService.updatePrices successfully. All Books added to queue',
+      }),
+      action: 'INSERT',
+    });
     return { message: true };
   }
 }

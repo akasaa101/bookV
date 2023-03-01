@@ -1,24 +1,41 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
-
+import { DatabaseLogger } from './database.logger';
 @Injectable()
 export class AppService {
-  constructor(private prisma: PrismaService, private jwt: JwtService) {}
-  private readonly logger = new Logger(AppService.name);
+  constructor(
+    private prisma: PrismaService,
+    private jwt: JwtService,
+    private readonly logger: DatabaseLogger,
+  ) {}
 
   async register(dto: RegisterDto) {
-    this.logger.log('register service triggered. username: ' + dto.username);
+    this.logger.log({
+      userId: 1,
+      tableName: 'user',
+      data: JSON.stringify({
+        message: 'AppService.register triggered',
+        dto: dto,
+      }),
+      action: 'INSERT',
+    });
     const { username, displayName, password } = dto;
     const isExistUser = await this.prisma.user.findUnique({
       where: { username },
     });
     if (isExistUser) {
-      this.logger.log(
-        'bad request for ' + dto.username + '. username already exist',
-      );
+      this.logger.log({
+        userId: 1,
+        tableName: 'user',
+        data: JSON.stringify({
+          message: 'username already exist',
+          dto: dto,
+        }),
+        action: 'SELECT',
+      });
       throw new BadRequestException('username already exist');
     }
 
@@ -35,24 +52,48 @@ export class AppService {
       username: user.username,
       displayName: user.displayName,
     });
-    this.logger.log('user registered successfully. token: ' + token);
-    return { message: true, token };
+    this.logger.log({
+      userId: 1,
+      tableName: 'user',
+      data: JSON.stringify({
+        message: 'user create successfull',
+        user,
+      }),
+      action: 'INSERT',
+    });
+    return {
+      message: true,
+      token,
+      username: user.username,
+      displayName: user.displayName,
+    };
   }
 
   async login(dto: LoginDto) {
-    this.logger.log('login service triggered. username: ' + dto.username);
+    this.logger.log({
+      userId: null,
+      tableName: 'user',
+      data: JSON.stringify({
+        message: 'AppService.login triggered',
+        dto: dto,
+      }),
+      action: 'INSERT',
+    });
     const { username, password } = dto;
 
     const foundUser = await this.prisma.user.findUnique({
       where: { username },
     });
     if (!foundUser) {
-      this.logger.log(
-        'bad request exception. username: ' +
-          dto.username +
-          '. username cannot find',
-      );
-
+      this.logger.log({
+        userId: null,
+        tableName: 'user',
+        data: JSON.stringify({
+          message: 'username cannot find',
+          dto: dto,
+        }),
+        action: 'SELECT',
+      });
       throw new BadRequestException('username cannot find');
     }
 
@@ -68,14 +109,22 @@ export class AppService {
       username: foundUser.username,
       displayName: foundUser.displayName,
     });
-    this.logger.log(
-      'login user successfully. username: ' +
-        dto.username +
-        '. token: ' +
-        token,
-    );
+    this.logger.log({
+      userId: foundUser.id,
+      tableName: 'user',
+      data: JSON.stringify({
+        message: 'user login successfully',
+        dto: dto,
+      }),
+      action: 'SELECT',
+    });
 
-    return { message: true, token };
+    return {
+      message: true,
+      token,
+      username: foundUser.username,
+      displayName: foundUser.displayName,
+    };
   }
 
   async hashPassword(password) {

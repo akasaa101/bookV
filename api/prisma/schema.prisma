@@ -42,14 +42,18 @@ model Author {
 model Log {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  userId    Int
+  user      User?    @relation(fields: [userId], references: [id])
+  userId    Int?
   tableName String   @map("table_name")
   action    Action
   data      Json?    @map("data")
 }
 
 enum Action {
+  SELECT
   INSERT
   UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
 }

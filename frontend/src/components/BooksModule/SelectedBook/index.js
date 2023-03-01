@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import { Button, Box, TextField, Typography } from "@mui/material"
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import EditIcon from '@mui/icons-material/Edit';
 import theme from '../../../theme'
+import { putBook } from '../../../store/actions';
+
 const SelectedBook = () => {
-    
     const selected = useSelector(state => state.selectedBook)
+    const token = useSelector(state => state.token)
     const authors = useSelector(state => state.authors)
-    const AuthorInfos = ({book}) => {
+    const dispatch = useDispatch() 
+    const BookInfos = ({book}) => {
         const [hover, setHover] = useState("")
         const [title, setTitle] = useState(book.title)
         const [description, setDescription] = useState(book.description)
@@ -18,6 +21,9 @@ const SelectedBook = () => {
         const [editedList, setEditedList] = useState([]) 
         const handleEditClick = (item) => {
             if(!editedList.includes(item)) setEditedList([...editedList, item])
+        }
+        const handleSubmitClick = () => {
+            dispatch(putBook(token, book.id, {title, description, isbn, author: authors.find(item => item.name === author).id, price},))
         }
         return (
             <Box sx={{display: 'flex', flexDirection:'column', alignItems:'center', width: '100%'}}>
@@ -70,7 +76,7 @@ const SelectedBook = () => {
                     {
                         editedList.includes("isbn") ?
                         (
-                            <TextField size="small" variant='outlined' value={isbn} onChange={e=>setIsbn(e.target.value)}/>
+                            <TextField type="tel" size="small" variant='outlined' value={isbn} onChange={e=>setIsbn(e.target.value)}/>
                         ):
                         (
                     <Box sx={{display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={()=>handleEditClick("isbn")}>
@@ -112,13 +118,27 @@ const SelectedBook = () => {
                         ):
                         (
                     <Box sx={{display: 'flex', alignItems: 'center', cursor: 'pointer'}} onClick={()=>handleEditClick("price")}>
-                        <Typography onMouseEnter={()=>setHover("price")} onMouseLeave={()=>setHover("false")} sx={{m:1}}>{book.price ? book.price : "There is no price"}</Typography>
+                        <Typography onMouseEnter={()=>setHover("price")} onMouseLeave={()=>setHover("false")} sx={{m:1}}>{book.price ? book.price.toFixed(2) : "There is no price"}</Typography>
                         { hover === "price" ? <EditIcon sx={{ fontSize: 20}} /> : <></>}
                     </Box>
                         )
                     }
                     </Box>
+                    
                 </Box>
+                {( 
+                   editedList.length>0 && (description !== book.description || title !== book.title || price !== book.price || isbn !== book.isbn || author !== authors.find(item => item.id === book.authorId).name)
+                    )? 
+                (
+                    <Box sx={{display: 'flex',width:'90%', m:2}}>
+                        <Button fullWidth variant="outlined" color="secondary" onClick={()=>handleSubmitClick()}>Edit existing book</Button>
+                    </Box>
+                )
+            :
+                (
+                    <></>
+                )}
+                
             </Box>
         )
     }
@@ -127,10 +147,7 @@ const SelectedBook = () => {
             <Box sx={{m:2}}>
                 {selected.title ? (
                     <>
-                <AuthorInfos book={selected}/>
-                <Box sx={{display: 'flex',width:'90%', m:2}}>
-                    <Button fullWidth variant="outlined" color="secondary">Edit existing book</Button>
-                </Box>
+                <BookInfos book={selected}/>
                 </>
                 ): <Typography>Please select an author from the dashbod module</Typography> }
                 

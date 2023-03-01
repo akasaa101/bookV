@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Logger } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from 'prisma/prisma.service';
@@ -12,6 +12,8 @@ import { PassportModule } from '@nestjs/passport';
 import { BullModule } from '@nestjs/bull';
 import { TRANSCODE_QUEUE } from './constants';
 import { TranscodeConsumer } from './transcode.consumer';
+import { DatabaseLogger } from './database.logger';
+import { LoggerModule } from './logger.module';
 
 @Module({
   imports: [
@@ -26,6 +28,7 @@ import { TranscodeConsumer } from './transcode.consumer';
     BullModule.registerQueue({
       name: TRANSCODE_QUEUE,
     }),
+    LoggerModule,
   ],
   controllers: [AppController, AuthorsController, BooksController],
   providers: [
@@ -35,6 +38,10 @@ import { TranscodeConsumer } from './transcode.consumer';
     BooksService,
     JwtStrategy,
     TranscodeConsumer,
+    {
+      provide: Logger,
+      useClass: DatabaseLogger,
+    },
   ],
 })
 export class AppModule {}
