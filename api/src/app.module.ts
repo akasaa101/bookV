@@ -16,8 +16,8 @@ import { DatabaseLogger } from './database.logger';
 import { LoggerModule } from './logger.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { BooksGateway } from './books.gateway';
-import { WebSocketGateway } from '@nestjs/websockets';
-
+/* import { WebSocketGateway } from '@nestjs/websockets';
+ */
 @Module({
   imports: [
     JwtModule,
