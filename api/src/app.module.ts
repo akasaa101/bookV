@@ -15,6 +15,8 @@ import { TranscodeConsumer } from './transcode.consumer';
 import { DatabaseLogger } from './database.logger';
 import { LoggerModule } from './logger.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { BooksGateway } from './books.gateway';
+import { WebSocketGateway } from '@nestjs/websockets';
 
 @Module({
   imports: [
@@ -22,7 +24,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     BullModule.forRoot({
       redis: {
-        host: 'localhost',
+        host: 'redis',
         port: 6379,
       },
     }),
@@ -44,6 +46,7 @@ import { ScheduleModule } from '@nestjs/schedule';
       provide: Logger,
       useClass: DatabaseLogger,
     },
+    BooksGateway,
   ],
 })
 export class AppModule {}

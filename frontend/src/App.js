@@ -15,7 +15,7 @@ function App() {
   const loginState = useSelector(state => state.loginState);
 
   const isAuthenticated = loginState==="success"
-
+  
   return (
       <ThemeProvider theme={createTheme(theme)}>
       <BrowserRouter>
