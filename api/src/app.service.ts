@@ -4,12 +4,16 @@ import { LoginDto, RegisterDto } from './dto/auth.dto';
 import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { DatabaseLogger } from './database.logger';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { BooksService } from './books/books.service';
+
 @Injectable()
 export class AppService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
     private readonly logger: DatabaseLogger,
+    private bookService: BooksService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -149,4 +153,12 @@ export class AppService {
     };
     return user;
   }
+
+  // I don't fully understand the documentation. This may be unnecessary.
+  // If necessary, remove the comment line.
+
+  /* @Cron(CronExpression.EVERY_MINUTE)
+  updatePrices() {
+    this.bookService.updatePrices();
+  } */
 }

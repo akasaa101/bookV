@@ -14,6 +14,7 @@ import { TRANSCODE_QUEUE } from './constants';
 import { TranscodeConsumer } from './transcode.consumer';
 import { DatabaseLogger } from './database.logger';
 import { LoggerModule } from './logger.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LoggerModule } from './logger.module';
       name: TRANSCODE_QUEUE,
     }),
     LoggerModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController, AuthorsController, BooksController],
   providers: [
