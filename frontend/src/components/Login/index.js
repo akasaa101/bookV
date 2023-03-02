@@ -18,12 +18,12 @@ const Login = () => {
             case 'failed':
                 return ( 
                     <Box sx={{ display: 'flex', flexDirection: 'column',alignItems: 'center',justifyContent:'center', width: '100%'}}>
-                         <Button variant="contained" sx={{ width: '80%',color: 'white', fontSize: 18}} onClick={handleSubmit}>Login</Button>
+                         <Button type="submit" variant="contained" sx={{ width: '80%',color: 'white', fontSize: 18}} onClick={handleSubmit}>Login</Button>
                          <Alert severity="warning">Login Failed</Alert>
                     </Box>
                     )
             default:
-                return <Button variant="contained" onClick={handleSubmit} sx={{ width: '80%',color: 'white', fontSize: 18}}>Login</Button>
+                return <Button type="submit" variant="contained" onClick={handleSubmit} sx={{ width: '80%',color: 'white', fontSize: 18}}>Login</Button>
     }
   };
     const handleSubmit = () => {

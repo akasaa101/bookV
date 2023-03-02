@@ -29,13 +29,18 @@ const SelectedAuthor = () => {
                 <Box sx={{display: 'flex', justifyContent: 'center', alignItems: 'center', width: 100, height: 100, borderRadius: 50, backgroundColor: theme.palette.background.default}}>
                     <PersonIcon color="secondary" sx={{fontSize: 80}}/>
                 </Box>
-                <Box sx={{display: 'flex', width: '100%'}}>
-                    <Typography sx={{m:2}}>Name: </Typography>
+                <Box sx={{display: 'flex', width: '100%', marginTop:2}}>
+                    <Box sx={{display:'flex', flex: 1}}>
+                        <Typography sx={{m:2}}>Name: </Typography>
+                    </Box>
+                    <Box sx={{display:'flex', flex: 1, justifyContent: 'center'}}>
+                        
+                   
                     {
                         onEdit ? 
                         (
-                            <Box sx={{width:'100%'}}>
-                                <TextField value={editName} onChange={(e)=>setEditName(capitalizeName(e.target.value))} />
+                            <Box sx={{display: 'flex',width:'100%', alignItems: 'center', flexDirection:'column'}}>
+                                <TextField size="small" value={editName} onChange={(e)=>setEditName(capitalizeName(e.target.value))} />
                                 {editName!==author.name ? (
                                     <Box sx={{display: 'flex',width:'70%', marginTop:3}}>
                                         <Button onClick={handleEdit} fullWidth variant="outlined" color="secondary">Edit</Button>
@@ -46,12 +51,13 @@ const SelectedAuthor = () => {
                         )
                         :
                         (
-                        <Box sx={{display:'flex', flexDirection:'row', alignItems:'center', cursor: 'pointer'}} onClick={()=>setOnEdit(true)}>
+                        <Box sx={{display:'flex', width:'100%', flexDirection:'row', alignItems:'center', cursor: 'pointer'}} onClick={()=>setOnEdit(true)}>
                             <Typography onMouseEnter={()=>setHover(true)} onMouseLeave={()=>setHover(false)} sx={{m:2}}>{author.name}</Typography>
                             { hover ? <EditIcon sx={{ fontSize: 20}} /> : <></>}
                         </Box>
                         )
                     }
+                     </Box>
                 </Box>
             </Box>
         )

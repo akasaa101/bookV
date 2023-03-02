@@ -55,7 +55,8 @@ export const registerUser = (username, displayName, password) => {
     dispatch(loginRequest());
     return axios.post('http://127.0.0.1:4000/register', { username, displayName, password })
       .then(response => {
-        dispatch(loginSuccess(response.data.token));
+        const { token, username, displayName } = response.data
+        dispatch(loginSuccess(token, username, displayName));
       })
       .catch(error => {
         dispatch(loginFailure());
@@ -125,8 +126,10 @@ export const putAuthor = (id, name) => {
   return async (dispatch) => {
     return axios.put('http://127.0.0.1:4000/authors/'+id , { name } )
       .then(response => {
-        if(response.status===200)
+        if(response.status===200){
           dispatch(getAuthors());
+          dispatch(selectAuthor(response.data.author))
+          }
       })
       .catch(error => {
         throw(error);

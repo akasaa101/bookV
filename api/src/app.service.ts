@@ -1,12 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
-import * as bcrypt from 'bcryptjs';
 import { JwtService } from '@nestjs/jwt';
 import { DatabaseLogger } from './database.logger';
-import { Cron, CronExpression } from '@nestjs/schedule';
 import { BooksService } from './books/books.service';
-
+import { hashPassword, comparePassword } from './common/utils';
 @Injectable()
 export class AppService {
   constructor(
@@ -17,22 +15,13 @@ export class AppService {
   ) {}
 
   async register(dto: RegisterDto) {
-    this.logger.log({
-      userId: 1,
-      tableName: 'user',
-      data: JSON.stringify({
-        message: 'AppService.register triggered',
-        dto: dto,
-      }),
-      action: 'INSERT',
-    });
     const { username, displayName, password } = dto;
     const isExistUser = await this.prisma.user.findUnique({
       where: { username },
     });
     if (isExistUser) {
       this.logger.log({
-        userId: 1,
+        userId: null,
         tableName: 'user',
         data: JSON.stringify({
           message: 'username already exist',
@@ -43,7 +32,7 @@ export class AppService {
       throw new BadRequestException('username already exist');
     }
 
-    const hashedPassword = await this.hashPassword(password);
+    const hashedPassword = await hashPassword(password);
     const user = await this.prisma.user.create({
       data: {
         username,
@@ -57,7 +46,7 @@ export class AppService {
       displayName: user.displayName,
     });
     this.logger.log({
-      userId: 1,
+      userId: user.id,
       tableName: 'user',
       data: JSON.stringify({
         message: 'user create successfull',
@@ -101,7 +90,7 @@ export class AppService {
       throw new BadRequestException('username cannot find');
     }
 
-    const isMatch = await this.comparePassword({
+    const isMatch = await comparePassword({
       password,
       hash: foundUser.password,
     });
@@ -130,30 +119,10 @@ export class AppService {
       displayName: foundUser.displayName,
     };
   }
-
-  async hashPassword(password) {
-    const hashed = await bcrypt.hash(password, 10);
-    return hashed;
-  }
-
-  async comparePassword(args: { password: string; hash: string }) {
-    return await bcrypt.compare(args.password, args.hash);
-  }
-
   async signToken(args: { id; username; displayName }) {
     const payload = args;
     return this.jwt.sign(payload, { secret: 'JWT_SECRET' });
   }
-
-  async validateUser(payload: any) {
-    const user = {
-      id: payload.id,
-      username: payload.username,
-      displayName: payload.displayName,
-    };
-    return user;
-  }
-
   // I don't fully understand the documentation. This may be unnecessary.
   // If necessary, remove the comment line.
 
